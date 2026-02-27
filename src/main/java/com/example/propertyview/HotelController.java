@@ -7,18 +7,29 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Контроллер — это "входная дверь" в наше приложение по HTTP.
- * Здесь будут все эндпоинты (URL), которые требует ТЗ.
  */
 @RestController
 @RequestMapping("/property-view") // общий префикс для всех методов API по ТЗ
 public class HotelController {
 
+    private final HotelRepository hotelRepository;
+
     /**
-     * Пока возвращаем пустой список.
-     * На следующем шаге подключим сервис и БД и начнём отдавать реальные отели.
+     * Внедряем репозиторий (доступ к таблице hotels).
+     * Spring сам создаст реализацию HotelRepository и передаст сюда.
      */
-    @GetMapping("/hotels")
-    public List<Object> getHotels() {
-        return List.of();
+    public HotelController(HotelRepository hotelRepository) {
+        this.hotelRepository = hotelRepository;
+    }
+
+    /**
+     * Пока возвращаем список отелей из БД.
+     * Так как мы ещё не добавили данные — будет пустой список [].
+     */
+        @GetMapping("/hotels")
+    public List<com.example.propertyview.dto.HotelShortResponse> getHotels() {
+        return hotelRepository.findAll().stream()
+                .map(h -> new com.example.propertyview.dto.HotelShortResponse(h.getId()))
+                .toList();
     }
 }
