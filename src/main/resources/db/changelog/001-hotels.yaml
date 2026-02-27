@@ -1,0 +1,72 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-hotels-and-amenities
+      author: you
+      changes:
+        # Главная таблица отелей
+        - createTable:
+            tableName: hotels
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+
+              # description — optional по ТЗ
+              - column:
+                  name: description
+                  type: VARCHAR(2000)
+                  constraints:
+                    nullable: true
+
+              - column:
+                  name: brand
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+
+              # address (вложенный объект) — храним как колонки
+              - column: { name: house_number, type: INT, constraints: { nullable: false } }
+              - column: { name: street, type: VARCHAR(255), constraints: { nullable: false } }
+              - column: { name: city, type: VARCHAR(255), constraints: { nullable: false } }
+              - column: { name: country, type: VARCHAR(255), constraints: { nullable: false } }
+              - column: { name: post_code, type: VARCHAR(32), constraints: { nullable: false } }
+
+              # contacts (вложенный объект)
+              - column: { name: phone, type: VARCHAR(64), constraints: { nullable: false } }
+              - column: { name: email, type: VARCHAR(255), constraints: { nullable: false } }
+
+              # arrivalTime (вложенный объект)
+              - column: { name: check_in, type: TIME, constraints: { nullable: false } }
+              # checkOut — optional по ТЗ
+              - column: { name: check_out, type: TIME, constraints: { nullable: true } }
+
+        # Таблица удобств (amenities) — список строк на один отель
+        - createTable:
+            tableName: hotel_amenities
+            columns:
+              - column: { name: hotel_id, type: BIGINT, constraints: { nullable: false } }
+              - column: { name: amenity, type: VARCHAR(255), constraints: { nullable: false } }
+
+        # Связь: hotel_amenities.hotel_id -> hotels.id
+        - addForeignKeyConstraint:
+            baseTableName: hotel_amenities
+            baseColumnNames: hotel_id
+            referencedTableName: hotels
+            referencedColumnNames: id
+            constraintName: fk_hotel_amenities_hotel
+
+        # Уникальность: один и тот же amenity не должен дублироваться у одного отеля
+        - addUniqueConstraint:
+            tableName: hotel_amenities
+            columnNames: hotel_id, amenity
+            constraintName: uq_hotel_amenities

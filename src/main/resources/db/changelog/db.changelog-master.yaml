@@ -1,7 +1,12 @@
 databaseChangeLog:
+  # Техническая метка: база "инициализирована"
   - changeSet:
       id: 000-init
       author: you
       changes:
         - tagDatabase:
             tag: init
+
+  # Подключаем следующий файл миграций, где будут реальные таблицы
+  - include:
+      file: db/changelog/001-hotels.yaml
