@@ -41,6 +41,14 @@ public class HotelController {
     }
 
     /**
+     * GET /property-view/hotels/{id} — подробная информация об одном отеле.
+     */
+    @GetMapping("/hotels/{id}")
+    public com.example.propertyview.dto.HotelDetailsResponse getHotelById(@PathVariable long id) {
+        return hotelService.getHotelById(id);
+    }
+
+    /**
      * POST /property-view/hotels — создаём отель и возвращаем краткий DTO.
      */
     @PostMapping("/hotels")

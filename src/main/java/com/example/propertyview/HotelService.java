@@ -2,16 +2,20 @@ package com.example.propertyview;
 
 import java.time.LocalTime;
 import java.util.LinkedHashSet;
+
 import java.util.Set;
 
 import org.springframework.stereotype.Service;
-
+import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import com.example.propertyview.dto.CreateHotelRequest;
+import com.example.propertyview.dto.HotelDetailsResponse;
 import com.example.propertyview.dto.HotelShortResponse;
 
 /**
- * Сервис — место, где живёт логика.
- * Контроллер вызывает сервис, сервис сохраняет в БД и возвращает DTO.
+ * Сервис — здесь логика работы с отелями.
+ * Контроллер только принимает запрос и вызывает сервис.
  */
 @Service
 public class HotelService {
@@ -23,7 +27,7 @@ public class HotelService {
     }
 
     /**
-     * Создаём новый отель в базе и возвращаем краткую информацию (как в GET /hotels).
+     * Создаём новый отель в базе и возвращаем краткий DTO (как в GET /hotels).
      */
     public HotelShortResponse createHotel(CreateHotelRequest req) {
         Hotel hotel = new Hotel();
@@ -68,6 +72,41 @@ public class HotelService {
                 saved.getDescription(),
                 formatAddress(saved.getAddress()),
                 saved.getContacts().getPhone()
+        );
+    }
+
+        /**
+     * Получаем один отель по id и возвращаем подробный DTO.
+     * Если отеля нет — отдаём 404 (как ожидается для REST).
+     */
+    @Transactional(readOnly = true)
+    public HotelDetailsResponse getHotelById(long id) {
+        Hotel hotel = hotelRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Hotel not found: " + id
+                ));
+
+        return new HotelDetailsResponse(
+                hotel.getId(),
+                hotel.getName(),
+                hotel.getDescription(),
+                hotel.getBrand(),
+                new HotelDetailsResponse.Address(
+                        hotel.getAddress().getHouseNumber(),
+                        hotel.getAddress().getStreet(),
+                        hotel.getAddress().getCity(),
+                        hotel.getAddress().getCountry(),
+                        hotel.getAddress().getPostCode()
+                ),
+                new HotelDetailsResponse.Contacts(
+                        hotel.getContacts().getPhone(),
+                        hotel.getContacts().getEmail()
+                ),
+                new HotelDetailsResponse.ArrivalTime(
+                        hotel.getArrivalTime().getCheckIn().toString(),
+                        hotel.getArrivalTime().getCheckOut() == null ? null : hotel.getArrivalTime().getCheckOut().toString()
+                ),
+                hotel.getAmenities().stream().toList()
         );
     }
 
