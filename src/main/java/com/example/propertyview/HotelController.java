@@ -1,9 +1,13 @@
 package com.example.propertyview;
 
 import java.util.List;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+
+import jakarta.validation.Valid;
+
+import org.springframework.web.bind.annotation.*;
+
+import com.example.propertyview.dto.CreateHotelRequest;
+import com.example.propertyview.dto.HotelShortResponse;
 
 /**
  * Контроллер — это "входная дверь" в наше приложение по HTTP.
@@ -12,24 +16,40 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/property-view") // общий префикс для всех методов API по ТЗ
 public class HotelController {
 
+    private final HotelService hotelService;
     private final HotelRepository hotelRepository;
 
-    /**
-     * Внедряем репозиторий (доступ к таблице hotels).
-     * Spring сам создаст реализацию HotelRepository и передаст сюда.
-     */
-    public HotelController(HotelRepository hotelRepository) {
+    public HotelController(HotelService hotelService, HotelRepository hotelRepository) {
+        this.hotelService = hotelService;
         this.hotelRepository = hotelRepository;
     }
 
     /**
-     * Пока возвращаем список отелей из БД.
-     * Так как мы ещё не добавили данные — будет пустой список [].
+     * GET /property-view/hotels — краткий список отелей (DTO).
      */
-        @GetMapping("/hotels")
-    public List<com.example.propertyview.dto.HotelShortResponse> getHotels() {
+    @GetMapping("/hotels")
+    public List<HotelShortResponse> getHotels() {
         return hotelRepository.findAll().stream()
-                .map(h -> new com.example.propertyview.dto.HotelShortResponse(h.getId()))
+                .map(h -> new HotelShortResponse(
+                        h.getId(),
+                        h.getName(),
+                        h.getDescription(),
+                        formatAddress(h.getAddress()),
+                        h.getContacts().getPhone()
+                ))
                 .toList();
+    }
+
+    /**
+     * POST /property-view/hotels — создаём отель и возвращаем краткий DTO.
+     */
+    @PostMapping("/hotels")
+    public HotelShortResponse createHotel(@Valid @RequestBody CreateHotelRequest req) {
+        return hotelService.createHotel(req);
+    }
+
+    private String formatAddress(Address a) {
+        return a.getHouseNumber() + " " + a.getStreet() + ", " +
+                a.getCity() + ", " + a.getPostCode() + ", " + a.getCountry();
     }
 }

@@ -2,8 +2,14 @@ package com.example.propertyview.dto;
 
 /**
  * DTO для ответа GET /hotels (краткая информация).
- * DTO — это "что мы отдаём наружу", отдельно от сущностей БД.
+ * Важно: address здесь строкой (по ТЗ).
  */
 public record HotelShortResponse(
-        long id
+        long id,
+        String name,
+        String description,
+        String address,
+        String phone
 ) {}
+
+
