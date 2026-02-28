@@ -23,8 +23,8 @@ GET /property-view/hotels/{id} — отель по id (подробно)
 
 POST /property-view/hotels — создать отель
 
-POST /property-view/hotels/{id}/amenities — добавить amenities
+POST /property-view/hotels/{id}/amenities — добавить удобства (amenities)
 
 GET /property-view/search — поиск (name, brand, city, country, amenities)
 
-GET /property-view/histogram/{param} — histogram (brand/city/country/amenities)
+GET /property-view/histogram/{param} — гистограмма по параметру (brand/city/country/amenities)
