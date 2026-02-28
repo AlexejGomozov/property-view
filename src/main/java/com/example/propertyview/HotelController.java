@@ -60,4 +60,17 @@ public class HotelController {
         return a.getHouseNumber() + " " + a.getStreet() + ", " +
                 a.getCity() + ", " + a.getPostCode() + ", " + a.getCountry();
     }
+
+        /**
+     * POST /property-view/hotels/{id}/amenities — добавляем удобства к отелю.
+     * По ТЗ тело запроса: массив строк, например ["Free parking","Free WiFi"].
+     * Возвращаем обновлённый подробный DTO.
+     */
+    @PostMapping("/hotels/{id}/amenities")
+    public com.example.propertyview.dto.HotelDetailsResponse addAmenities(
+            @PathVariable long id,
+            @RequestBody java.util.List<String> amenities
+    ) {
+        return hotelService.addAmenities(id, amenities);
+    }
 }
